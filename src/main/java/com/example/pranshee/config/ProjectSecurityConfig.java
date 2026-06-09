@@ -1,20 +1,12 @@
 package com.example.pranshee.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
-
-import javax.sql.DataSource;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 
@@ -25,9 +17,10 @@ public class ProjectSecurityConfig {
 	SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 		// http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());
 		// http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
-		http.authorizeHttpRequests(
-				(requests) -> requests.requestMatchers("/myAccount", "/myBalance", "/myCards").authenticated()
-						.requestMatchers("/myNotice", "/myContact", "/error").permitAll());
+		http.csrf(csrf -> csrf.disable())
+				.authorizeHttpRequests(
+						(requests) -> requests.requestMatchers("/myAccount", "/myBalance", "/myCards").authenticated()
+								.requestMatchers("/myNotice", "/myContact", "/error", "/register").permitAll());
 		// http.formLogin(httpSecurityFormLoginConfrigurer->
 		// httpSecurityFormLoginConfrigurer.disable());
 		// http.httpBasic(httpBasicConfig -> httpBasicConfig.disable());
@@ -43,17 +36,18 @@ public class ProjectSecurityConfig {
 	 *         </p>
 	 * @return
 	 */
-	@Bean
-	public UserDetailsService userDetailsService(DataSource dataSource) {
-		// UserDetails user = User.withUsername("user")
-		// .password("{noop}AsthaT@12345").authorities("read").build();
-		// UserDetails admin = User.withUsername("admin")
-		// .password("{bcrypt}$2a$12$HoKwiicDiWJLtWPK6uxLrupemnEbzl9VAXqDNGgRCn4J1PnjilXmC").authorities("admin")
-		// .build();
+	// @Bean
+	// public UserDetailsService userDetailsService(DataSource dataSource) {
+	// // UserDetails user = User.withUsername("user")
+	// // .password("{noop}AsthaT@12345").authorities("read").build();
+	// // UserDetails admin = User.withUsername("admin")
+	// //
+	// .password("{bcrypt}$2a$12$HoKwiicDiWJLtWPK6uxLrupemnEbzl9VAXqDNGgRCn4J1PnjilXmC").authorities("admin")
+	// // .build();
 
-		return new JdbcUserDetailsManager(dataSource);
+	// return new JdbcUserDetailsManager(dataSource);
 
-	}
+	// }
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {

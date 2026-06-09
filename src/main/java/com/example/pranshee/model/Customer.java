@@ -10,14 +10,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 // In case if we are using some different table name than the class name, we can
 // use @Table annotation to specify the table name
 @Table(name = "customer")
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
-    @Setter
     private long id;
 
     // In case if we are using some different column name than the field name, we
