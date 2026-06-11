@@ -1,14 +1,10 @@
 spring:
   application:
     name: ${SPRING_APP_NAME:SpringSecuritySection1}
-  
-  # Importing the production configuration to override the default settings for production environment
+
   config:
-    import: application_prod.yml  
-
-  profiles:
-    active: default  
-
+    activate:
+        on-profile: prod  
 
   security:
     user:
@@ -25,10 +21,10 @@ spring:
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.MySQLDialect
-    show-sql: ${SPRING_JPA_SHOW_SQL:true}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        format_sql: ${SPRING_JPA_HIBERNATE_FORMAT_SQL:true}
+        format_sql: ${SPRING_JPA_HIBERNATE_FORMAT_SQL:false}
 
 server:
   port: ${SERVER_PORT:8080}
@@ -39,4 +35,4 @@ logging:
   level:
     org:
       springframework:
-        security: ${SPRING_SECURITY_LOG_LEVEL:TRACE}
+        security: ${SPRING_SECURITY_LOG_LEVEL:ERROR}
