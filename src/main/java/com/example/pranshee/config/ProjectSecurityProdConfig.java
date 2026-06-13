@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 
+import com.example.pranshee.exceptionhandling.CustomAccessDeniedHandler;
 import com.example.pranshee.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 
 @Profile("prod") // This annotation indicates that this configuration will be used only in the
@@ -29,7 +30,8 @@ public class ProjectSecurityProdConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(
                         (requests) -> requests.requestMatchers("/myAccount", "/myBalance", "/myCards").authenticated()
-                                .requestMatchers("/myNotice", "/myContact", "/error", "/register").permitAll());
+                                .requestMatchers("/myNotice", "/myContact", "/error", "/register", "/invalidSession")
+                                .permitAll());
         // http.formLogin(httpSecurityFormLoginConfrigurer->
         // httpSecurityFormLoginConfrigurer.disable());
         // http.httpBasic(httpBasicConfig -> httpBasicConfig.disable());
@@ -42,6 +44,40 @@ public class ProjectSecurityProdConfig {
         http.httpBasic(
                 httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
 
+        // all these exception are handling for 401 unauthorized error and we can set
+        // global exception handling for all the authentication entry points in the
+        // application
+        // http.exceptionHandling(httpBasicConfig ->
+        // httpBasicConfig.authenticationEntryPoint(new
+        // CustomBasicAuthenticationEntryPoint()));
+        // this is the another approach to set the custom authentication entry point
+        // for basic authentication
+        // this approach has the advantage that we can set global exception handling for
+        // all the
+        // authentication entry points in the application
+        // and we can also set different authentication entry points for
+        // different authentication mechanisms in the application
+        /*
+         * http.exceptionHandling(httpBasicConfig -> httpBasicConfig
+         * .authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+         */
+
+        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
+
+        /*
+         * this is for the invalid session handling after session timeout and
+         * it will redirect the user to the login page when the session is invalid and
+         * it will also send a custom error message in the response header when
+         * the session is invalid and it will also send a 401 unauthorized status
+         * code in the response.
+         * mention "/invalidSession" in the permitAll() method above to allow
+         * access to this endpoint without authentication and you have to provide a real
+         * page this ia an
+         * example of how to handle invalid session and you can customize it as per your
+         * requirement
+         */
+        http.sessionManagement(sessionManagementConfig -> sessionManagementConfig
+                .invalidSessionUrl("invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true));
         return http.build();
     }
 

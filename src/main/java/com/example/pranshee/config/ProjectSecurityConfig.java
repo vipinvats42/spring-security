@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 
+import com.example.pranshee.exceptionhandling.CustomAccessDeniedHandler;
 import com.example.pranshee.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 
 @Configuration
@@ -25,7 +26,8 @@ public class ProjectSecurityConfig {
 		http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(
 						(requests) -> requests.requestMatchers("/myAccount", "/myBalance", "/myCards").authenticated()
-								.requestMatchers("/myNotice", "/myContact", "/error", "/register").permitAll());
+								.requestMatchers("/myNotice", "/myContact", "/error", "/register", "/invalidSession")
+								.permitAll());
 		// http.formLogin(httpSecurityFormLoginConfrigurer->
 		// httpSecurityFormLoginConfrigurer.disable());
 		// http.httpBasic(httpBasicConfig -> httpBasicConfig.disable());
@@ -33,6 +35,9 @@ public class ProjectSecurityConfig {
 		// http.httpBasic(withDefaults());
 		http.httpBasic(
 				httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+		http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
+		http.sessionManagement(sessionManagementConfig -> sessionManagementConfig
+				.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true));
 		return http.build();
 	}
 
