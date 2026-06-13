@@ -11,15 +11,22 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 
+import com.example.pranshee.exceptionhandling.CustomBasicAuthenticationEntryPoint;
+
 @Profile("prod") // This annotation indicates that this configuration will be used only in the
                  // production profile, and it will be ignored in other profiles like default or
                  // dev
 @Configuration
 public class ProjectSecurityProdConfig {
+
+    @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
-        http.csrf(csrf -> csrf.disable())
+        http.redirectToHttps(withDefaults())
+                // rejects http requests and accepts only https
+                // requests
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(
                         (requests) -> requests.requestMatchers("/myAccount", "/myBalance", "/myCards").authenticated()
                                 .requestMatchers("/myNotice", "/myContact", "/error", "/register").permitAll());
@@ -27,7 +34,14 @@ public class ProjectSecurityProdConfig {
         // httpSecurityFormLoginConfrigurer.disable());
         // http.httpBasic(httpBasicConfig -> httpBasicConfig.disable());
         http.formLogin(withDefaults());
-        http.httpBasic(withDefaults());
+        // http.httpBasic(withDefaults());
+        // We have customized the basic authentication entry point to send a custom
+        // error message in the
+        // response header when the
+        // user is not authorized. So we need to use that here.
+        http.httpBasic(
+                httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+
         return http.build();
     }
 

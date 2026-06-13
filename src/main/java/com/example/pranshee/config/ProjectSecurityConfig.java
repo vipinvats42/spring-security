@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
 
+import com.example.pranshee.exceptionhandling.CustomBasicAuthenticationEntryPoint;
+
 @Configuration
 @Profile("!prod") // This annotation indicates that this configuration will be used in all
 					// profiles except prod, and it will be ignored in the production profile
@@ -28,7 +30,9 @@ public class ProjectSecurityConfig {
 		// httpSecurityFormLoginConfrigurer.disable());
 		// http.httpBasic(httpBasicConfig -> httpBasicConfig.disable());
 		http.formLogin(withDefaults());
-		http.httpBasic(withDefaults());
+		// http.httpBasic(withDefaults());
+		http.httpBasic(
+				httpBasicConfig -> httpBasicConfig.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
 		return http.build();
 	}
 
